@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investigació: Teatre Musical</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --primary: #6366f1; /* Indigo */
+            --primary-hover: #4f46e5;
+            --accent: #ec4899; /* Pink */
+            --canva: #00c4cc; /* Canva color */
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* --- ESTIL PANTALLA DE BENVINGUDA (OVERLAY) --- */
+        #welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease;
+        }
+
+        .welcome-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .welcome-icon { font-size: 4rem; margin-bottom: 10px; display: block; }
+        .welcome-title { color: var(--text-main); font-size: 2rem; margin: 0 0 10px 0; font-weight: 800; }
+        .welcome-text { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 30px; }
+
+        .mission-steps {
+            text-align: left;
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .mission-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .mission-item:last-child { margin-bottom: 0; }
+        .mission-number {
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .btn-start {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        /* --- ESTIL APP PRINCIPAL --- */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            opacity: 0; /* Ocult inicialment per efecte fade-in */
+            transition: opacity 1s ease;
+        }
+
+        header { text-align: center; margin-bottom: 30px; margin-top: 40px; }
+        h1 { margin: 0; color: var(--primary); font-size: 2.5rem; letter-spacing: -1px; }
+        .subtitle { color: var(--text-secondary); margin-top: 5px; }
+
+        .progress-container {
+            background-color: #ddd;
+            border-radius: 20px;
+            height: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--canva));
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        
+        .step-badge {
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .step-badge.canva { background-color: var(--canva); }
+        h2 { margin: 0; font-size: 1.25rem; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; margin-top: 15px; }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+        select:focus, input:focus { outline: none; border-color: var(--primary); }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .checklist-item:hover { background: #f0f9ff; }
+        .checklist-item input { margin-right: 15px; width: 20px; height: 20px; cursor: pointer; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s, opacity 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .btn-youtube { background-color: #ef4444; color: white; }
+        .btn-youtube:hover { background-color: #dc2626; }
+        .btn-canva { background-color: var(--canva); color: white; font-size: 1.1rem; }
+        .btn-canva:hover { background-color: #00a0a7; }
+        
+        .btn-disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .final-box {
+            background-color: #ecfdf5;
+            border: 2px dashed var(--success);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .final-box h3 { color: #065f46; margin-top: 0; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+        
+        .note { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 6px; font-size: 0.9rem; margin-bottom: 15px; }
+        
+        .poster-info {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            border: 2px solid #bae6fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .poster-info h3 { color: #0284c7; margin-top: 0; margin-bottom: 10px; }
+        .poster-emoji { font-size: 1.5rem; margin-right: 5px; }
+
+        .form-section-title {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE BENVINGUDA (OVERLAY) -->
+    <div id="welcome-overlay">
+        <div class="welcome-card">
+            <span class="welcome-icon">🕵️‍♀️</span>
+            <h1 class="welcome-title">Operació: Teatre Musical</h1>
+            <p class="welcome-text">Benvingut/da a la teva missió d'avui. Convertiràs la teva oïda en la d'un expert crític musical.</p>
+            
+            <div class="mission-steps">
+                <div class="mission-item">
+                    <div class="mission-number">1</div>
+                    <span>Tria una obra famosa de Broadway.</span>
+                </div>
+                <div class="mission-item">
+                    <div class="mission-number">2</div>
+                    <span>Investiga dues versions (Original vs. Cover).</span>
+                </div>
+                <div class="mission-item">
+                    <div class="mission-number">3</div>
+                    <span>Analitza les diferències de so i emoció.</span>
+                </div>
+                <div class="mission-item">
+                    <div class="mission-number">4</div>
+                    <span>Crea un Pòster visual a Canva.</span>
+                </div>
+            </div>
+
+            <button class="btn-start" onclick="startAdventure()">Entesos, Som-hi! 🚀</button>
+        </div>
+    </div>
+
+    <!-- CONTINGUT PRINCIPAL (AMAGAT INICIALMENT) -->
+    <div class="container" id="main-app">
+        <header>
+            <h1>🎭 Teatre Musical: L'Anàlisi</h1>
+            <p class="subtitle">Activitat interactiva d'escolta i disseny</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </header>
+
+        <!-- PAS 1: IDENTIFICACIÓ -->
+        <div class="card" id="step1">
+            <div class="card-header">
+                <div class="step-badge">1</div>
+                <h2>Configuració de la Missió</h2>
+            </div>
+            
+            <label>Nom de l'alumne/a:</label>
+            <input type="text" id="studentName" placeholder="Escriu el teu nom complet..." oninput="updateProgress()">
+            
+            <label>Tria l'obra que vols analitzar:</label>
+            <select id="songSelect" onchange="updateLinks()">
+                <option value="">-- Selecciona una opció primer --</option>
+                <option value="Defying Gravity">Wicked - "Defying Gravity"</option>
+                <option value="Alexander Hamilton">Hamilton - "Alexander Hamilton"</option>
+                <option value="Memory">Cats - "Memory"</option>
+                <option value="Bring Him Home">Les Misérables - "Bring Him Home"</option>
+                <option value="Elephant Love Medley">Moulin Rouge - "Elephant Love Medley"</option>
+                <option value="Don't Rain on My Parade">Funny Girl - "Don't Rain on My Parade"</option>
+                <option value="The Phantom of the Opera">Phantom of the Opera - "Main Theme"</option>
+            </select>
+        </div>
+
+        <!-- PAS 2: ESCOLTA -->
+        <div class="card" id="step2">
+            <div class="card-header">
+                <div class="step-badge">2</div>
+                <h2>La Sala d'Escolta</h2>
+            </div>
+            <div class="note">⚠️ Instruccions: Fes clic als botons. Escolta almenys 2 minuts de cada versió i fixa't en les diferències.</div>
+
+            <div class="grid-2">
+                <div>
+                    <label>Versió A: Original / Broadway</label>
+                    <a id="linkA" href="#" target="_blank" class="btn btn-youtube btn-disabled" onclick="handleLinkClick(event, 'A')">
+                        🎧 Escoltar Versió A
+                    </a>
+                </div>
+                <div>
+                    <label>Versió B: Estil Diferent</label>
+                    <a id="linkB" href="#" target="_blank" class="btn btn-youtube btn-disabled" onclick="handleLinkClick(event, 'B')">
+                        🎸 Escoltar Versió B
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAS 3: TEST COMPARATIU AMPLIT -->
+        <div class="card" id="step3">
+            <div class="card-header">
+                <div class="step-badge">3</div>
+                <h2>Test Comparatiu (Anàlisi Completa)</h2>
+            </div>
+            <p>Respon aquestes preguntes sobre les diferències musicals entre les dues versions:</p>
+
+            <div class="grid-2">
+                <!-- Versió A -->
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+                    <h3 style="color:var(--primary); margin-top:0; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">Versió A (Original)</h3>
+                    
+                    <div class="form-section-title">So i Veu</div>
+                    <label>Instrument principal:</label>
+                    <select id="selInstA" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Orquestra Completa">Orquestra Completa</option>
+                        <option value="Piano">Piano Sol</option>
+                        <option value="Guitarra">Guitarra</option>
+                        <option value="Electrònica">Sintetitzadors / Electrònica</option>
+                    </select>
+
+                    <label>Estil Vocal:</label>
+                    <select id="selVeuA" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Clàssic">Clàssic / Operístic</option>
+                        <option value="Belting">Belting (Potent/Crit)</option>
+                        <option value="Suau">Suau / Xiuxiueig</option>
+                        <option value="Parlat">Parlat / Rap</option>
+                    </select>
+
+                    <div class="form-section-title" style="margin-top:20px;">Ritme i Emoció</div>
+                    <label>Velocitat (Tempo):</label>
+                    <select id="selTempoA" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Lent">Lent / Balada</option>
+                        <option value="Mitjà">Mitjà / Caminant</option>
+                        <option value="Ràpid">Ràpid / Energètic</option>
+                    </select>
+
+                    <label>Emoció del Personatge:</label>
+                    <select id="selEmoA" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Tristesa">Tristesa / Dolor</option>
+                        <option value="Alegria">Alegria / Esperança</option>
+                        <option value="Ràbia">Ràbia / Fúria</option>
+                        <option value="Por">Por / Tensió</option>
+                    </select>
+                </div>
+
+                <!-- Versió B -->
+                <div style="background: #fff0f5; padding: 20px; border-radius: 8px; border: 1px solid #fce4ec;">
+                    <h3 style="color:var(--accent); margin-top:0; border-bottom: 2px solid var(--accent); padding-bottom: 10px;">Versió B (Alternativa)</h3>
+                    
+                    <div class="form-section-title">So i Veu</div>
+                    <label>Instrument principal:</label>
+                    <select id="selInstB" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Orquestra Completa">Orquestra Completa</option>
+                        <option value="Piano">Piano Sol / Acústic</option>
+                        <option value="Guitarra">Guitarra (Rock/Folk)</option>
+                        <option value="Electrònica">Sintetitzadors / Electrònica</option>
+                        <option value="A Cappella">A Cappella (Només veus)</option>
+                    </select>
+
+                    <label>Estil Vocal:</label>
+                    <select id="selVeuB" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Clàssic">Clàssic / Operístic</option>
+                        <option value="Belting">Belting (Potent/Crit)</option>
+                        <option value="Pop">Pop / Modern</option>
+                        <option value="Rock">Rock / Rebentat</option>
+                    </select>
+
+                    <div class="form-section-title" style="margin-top:20px;">Ritme i Emoció</div>
+                    <label>Velocitat (Tempo):</label>
+                    <select id="selTempoB" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Lent">Lent / Balada</option>
+                        <option value="Mitjà">Mitjà / Caminant</option>
+                        <option value="Ràpid">Ràpid / Energètic</option>
+                    </select>
+
+                    <label>Emoció del Personatge:</label>
+                    <select id="selEmoB" onchange="updateProgress()">
+                        <option value="">-- Tria'n un --</option>
+                        <option value="Tristesa">Tristesa / Dolor</option>
+                        <option value="Alegria">Alegria / Esperança</option>
+                        <option value="Ràbia">Ràbia / Fúria</option>
+                        <option value="Por">Por / Tensió</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px;">
+                <label>🤔 Pregunta Final: Com acaba cada versió?</label>
+                <select id="selFinal" style="width: 100%;" onchange="updateProgress()">
+                    <option value="">-- Tria l'opció correcta --</option>
+                    <option value="Igual">Totes dues acaben fort i èpic (Big Finish)</option>
+                    <option value="A_Fort">L'Original acaba fort, però la versió B acaba suau/fade-out</option>
+                    <option value="B_Fort">L'Original acaba suau, però la versió B acaba fort</option>
+                    <option value="Diferent">Totes dues tenen finals molt diferents</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- PAS 4: REPTE CANVA -->
+        <div class="card" id="step4">
+            <div class="card-header">
+                <div class="step-badge canva">4</div>
+                <h2>El Repte Creatiu (Canva)</h2>
+            </div>
+            
+            <p>Ara demostrarem visualment les diferències. Segueix els passos:</p>
+
+            <div class="poster-info">
+                <h3><span class="poster-emoji">✨</span> Pòster Promocional</h3>
+                <p>No volem una simple taula! Has de crear un <b>Pòster Visual</b> que sigui bonic a la vista.</p>
+                <p style="font-size: 0.9em; color: #555;"><i>"Imagina que has de penjar això a la cartellera del teatre per explicar les dues versions al públic."</i></p>
+            </div>
+
+            <a href="https://www.canva.com" target="_blank" class="btn btn-canva">
+                🎨 Obrir Canva.com
+            </a>
+
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                <h3 style="margin-top:0; color: #047857;">Llista de Verificació (Checklist)</h3>
+                <p style="font-size: 0.9em; margin-bottom: 15px;">Marca les caselles a mesura que ho facis a Canva:</p>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check1" onchange="updateProgress()">
+                    <span><b>Pas 1:</b> Fes una captura de pantalla del vídeo de la <u>Versió A</u> i posa-la a l'esquerra.</span>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2" onchange="updateProgress()">
+                    <span><b>Pas 2:</b> Fes una captura de pantalla del vídeo de la <u>Versió B</u> i posa-la a la dreta.</span>
+                </div>
+                
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3" onchange="updateProgress()">
+                    <span><b>Pas 3:</b> Afegeix text: Escriu <u>2 adjectius</u> a sobre de cada foto que descriguin la música.</span>
+                </div>
+
+                <div class="checklist-item" style="border: 2px solid #facc15; background: #fffbeb;">
+                    <input type="checkbox" id="checkDesign" onchange="updateProgress()">
+                    <span><b>Pas 4 (Important):</b> Dóna-li estil de <u>Pòster</u>! Posa un títol gran, fons de color i que quedi bonic.</span>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4" onchange="updateProgress()">
+                    <span><b>Pas 5:</b> Descarrega la imatge del Canva quan estigui llesta.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- INSTRUCCIONS FINALS -->
+        <div class="final-box" id="finalStep">
+            <h3>🎉 Finalitzar l'Activitat</h3>
+            <p>Per entregar la tasca al Moodle, has de pujar dues coses:</p>
+            <ol style="text-align: left; margin-bottom: 20px; background: white; padding: 20px 40px; border-radius: 10px;">
+                <li style="margin-bottom: 10px;"><b>1. Captura de Respostes:</b> Fes una Captura de Pantalla d'aquesta pàgina web (on es vegin totes les respostes del Pas 3).</li>
+                <li><b>2. Imatge del Canva:</b> Puja la imatge que acabes de crear.</li>
+            </ol>
+            <p>Puja els dos arxius a la tasca del Moodle.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // FUNCIÓ PER INICIAR (TREURE LA BENVINGUDA)
+        function startAdventure() {
+            const overlay = document.getElementById('welcome-overlay');
+            const mainApp = document.getElementById('main-app');
+            
+            // Animació de sortida
+            overlay.style.transform = 'translateY(-100%)';
+            overlay.style.opacity = '0';
+            
+            // Animació d'entrada del contingut
+            setTimeout(() => {
+                mainApp.style.opacity = '1';
+                overlay.style.display = 'none'; // Treure del DOM per si de cas
+            }, 500);
+        }
+
+        // Variables d'estat
+        let listenedA = false;
+        let listenedB = false;
+
+        function updateProgress() {
+            let score = 0;
+            const totalSteps = 16; 
+            let current = 0;
+
+            if(document.getElementById('studentName').value.length > 0) current++;
+            if(document.getElementById('songSelect').value !== "") current++;
+            if(listenedA) current++;
+            if(listenedB) current++;
+            
+            // Test inputs Version A
+            if(document.getElementById('selInstA').value) current++;
+            if(document.getElementById('selVeuA').value) current++;
+            if(document.getElementById('selTempoA').value) current++;
+            if(document.getElementById('selEmoA').value) current++;
+
+            // Test inputs Version B
+            if(document.getElementById('selInstB').value) current++;
+            if(document.getElementById('selVeuB').value) current++;
+            if(document.getElementById('selTempoB').value) current++;
+            if(document.getElementById('selEmoB').value) current++;
+            
+            // Final Question
+            if(document.getElementById('selFinal').value) current++;
+
+            // Canva Checkboxes
+            const c1 = document.getElementById('check1').checked;
+            const c2 = document.getElementById('check2').checked;
+            const c3 = document.getElementById('check3').checked;
+            const cDesign = document.getElementById('checkDesign').checked; 
+            const c4 = document.getElementById('check4').checked;
+            
+            if(c1) current += 0.5;
+            if(c2) current += 0.5;
+            if(c3) current += 0.5;
+            if(cDesign) current += 1; 
+            if(c4) current += 0.5;
+
+            let percentage = Math.min((current / totalSteps) * 100, 100);
+            document.getElementById('progressBar').style.width = percentage + "%";
+        }
+
+        function updateLinks() {
+            const song = document.getElementById('songSelect').value;
+            const btnA = document.getElementById('linkA');
+            const btnB = document.getElementById('linkB');
+
+            if (song) {
+                // Generar enllaços
+                const queryA = encodeURIComponent(`${song} original broadway cast performance`);
+                const queryB = encodeURIComponent(`${song} cover acoustic different version`);
+
+                btnA.href = `https://www.youtube.com/results?search_query=${queryA}`;
+                btnB.href = `https://www.youtube.com/results?search_query=${queryB}`;
+                
+                // Activar visualment els botons
+                btnA.classList.remove('btn-disabled');
+                btnB.classList.remove('btn-disabled');
+            } else {
+                // Desactivar
+                btnA.href = "#";
+                btnB.href = "#";
+                btnA.classList.add('btn-disabled');
+                btnB.classList.add('btn-disabled');
+            }
+            updateProgress();
+        }
+
+        function handleLinkClick(event, version) {
+            const song = document.getElementById('songSelect').value;
+            
+            if (!song) {
+                event.preventDefault();
+                alert("⚠️ ATENCIÓ: Primer has de triar una obra al Pas 1 per poder buscar els vídeos!");
+                document.getElementById('step1').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            if(version === 'A') listenedA = true;
+            if(version === 'B') listenedB = true;
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
